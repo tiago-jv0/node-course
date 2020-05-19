@@ -45,7 +45,7 @@ exports.getAllTours = (req, resp) => {
 exports.getTour = (req, resp) => {
   const id = parseInt(req.params.id);
 
-  const tour = tours.find((tour) => tour.id === id);
+  const tour = tours.find((element) => element.id === id);
 
   return resp.status(200).json({
     status: 'success',
@@ -59,6 +59,7 @@ exports.createTour = (req, resp) => {
   const newId = tours[tours.length - 1].id + 1;
 
   const newTour = {
+    // eslint-disable-next-line node/no-unsupported-features/es-syntax
     ...req.body,
     id: newId,
   };
@@ -68,7 +69,7 @@ exports.createTour = (req, resp) => {
   fs.writeFile(
     `${__dirname}/dev-data/data/tours-simple.json`,
     JSON.stringify(tours),
-    (err) => {
+    () => {
       return resp.status(201).json({
         status: 'success',
         data: {
@@ -80,8 +81,6 @@ exports.createTour = (req, resp) => {
 };
 
 exports.updateTour = (req, resp) => {
-  const id = parseInt(req.params.id);
-
   return resp.status(200).json({
     status: 'success',
     data: {
@@ -91,8 +90,6 @@ exports.updateTour = (req, resp) => {
 };
 
 exports.deleteTour = (req, resp) => {
-  const id = parseInt(req.params.id);
-
   return resp.status(204).json({
     status: 'success',
     data: null,
