@@ -1,19 +1,17 @@
 const express = require('express');
+const morgan = require('morgan');
+const helmet = require('helmet');
+
+const tourRouter = require('./routes/tour.routes');
+const userRouter = require('./routes/user.routes');
 
 const app = express();
 
-// app.get('/', (req, resp) => {
-//   resp.status(200).json({
-//     message: 'Hello from the server side',
-//     app: 'Natours',
-//   });
-// });
+app.use(morgan('dev'));
+app.use(express.json());
+app.use(helmet());
 
-// app.post('/' , ((req, resp) => {
-//     resp.send('You can post to this endpoint...')
-// }))
+app.use('/api/v1/tours', tourRouter);
+app.use('/api/v1/users', userRouter);
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`App running on port ${port}`);
-});
+module.exports = app
