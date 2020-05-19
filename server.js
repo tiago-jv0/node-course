@@ -1,15 +1,9 @@
-const dotenv = require('dotenv');
-
-dotenv.config({
-  path: './config.env',
-});
-
 const mongoose = require('mongoose');
+const config = require('config');
 
-const DB = process.env.DATABASE.replace(
-  '<PASSWORD>',
-  process.env.DATABASE_PASSWORD
-);
+const DB = config
+  .get('database.host')
+  .replace('<PASSWORD>', config.get('database.password'));
 
 mongoose
   .connect(DB, {
@@ -17,7 +11,7 @@ mongoose
     useCreateIndex: true,
     useFindAndModify: false,
   })
-  .then((connection) => {
+  .then(() => {
     console.log(`Connected`);
   });
 

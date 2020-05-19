@@ -1,13 +1,14 @@
 const express = require('express');
 const morgan = require('morgan');
 const helmet = require('helmet');
+const config = require('config');
 
 const tourRouter = require('./routes/tour.routes');
 const userRouter = require('./routes/user.routes');
 
 const app = express();
 
-if (process.env.NODE_ENV === 'development') {
+if (config.get('NODE_ENV') === 'development') {
   app.use(morgan('dev'));
 }
 
