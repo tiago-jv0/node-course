@@ -8,7 +8,7 @@ const userRouter = require('./routes/user.routes');
 
 const app = express();
 
-if (config.get('NODE_ENV') === 'development') {
+if (config.get('NODE_ENV') === 'Development') {
   app.use(morgan('dev'));
 }
 
