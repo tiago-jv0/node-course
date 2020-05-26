@@ -11,7 +11,9 @@ const userRouter = require('./routes/user.routes');
 
 const app = express();
 
-if (config.get('NODE_ENV') === 'Development') {
+const enviroment = process.env.NODE_ENV || config.get('NODE_ENV');
+
+if (enviroment === 'development') {
   app.use(morgan('dev'));
 }
 
