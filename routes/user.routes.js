@@ -5,9 +5,13 @@ const {
   createUser,
   updateUser,
   deleteUser,
-} = require('../controllers/user.controllers');
+} = require('../controllers/user.controller');
+
+const { signUp } = require('../controllers/auth.controller');
 
 const router = express.Router();
+
+router.post('/signup', signUp);
 
 router.route('/').get(getAllUsers).post(createUser);
 

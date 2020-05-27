@@ -9,7 +9,7 @@ const {
   aliasTopTours,
   getTourStats,
   getMonthlyPlan,
-} = require('../controllers/tour.controllers');
+} = require('../controllers/tour.controller');
 
 const router = express.Router();
 

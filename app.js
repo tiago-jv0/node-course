@@ -4,7 +4,7 @@ const helmet = require('helmet');
 const config = require('config');
 
 const AppError = require('./utils/AppError');
-const globalErrorHandler = require('./controllers/error.controllers');
+const globalErrorHandler = require('./controllers/error.controller');
 
 const tourRouter = require('./routes/tour.routes');
 const userRouter = require('./routes/user.routes');
