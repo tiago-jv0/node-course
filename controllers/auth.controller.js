@@ -15,6 +15,18 @@ const signToken = (id) =>
     expiresIn: config.get('JWT_EXPIRES_IN'),
   });
 
+const createSendToken = (user, statusCode, resp) => {
+  const token = signToken(user._id);
+
+  return resp.status(statusCode).json({
+    status: 'success',
+    token,
+    data: {
+      user,
+    },
+  });
+};
+
 exports.signUp = catchAsync(async (req, resp, next) => {
   const newUser = await User.create({
     name: req.body.name,
@@ -23,15 +35,7 @@ exports.signUp = catchAsync(async (req, resp, next) => {
     passwordConfirm: req.body.passwordConfirm,
   });
 
-  const token = signToken(newUser._id);
-
-  return resp.status(201).json({
-    status: 'success',
-    token,
-    data: {
-      user: newUser,
-    },
-  });
+  createSendToken(newUser, 201, resp);
 });
 
 exports.login = catchAsync(async (req, resp, next) => {
@@ -53,12 +57,7 @@ exports.login = catchAsync(async (req, resp, next) => {
 
   //3) IF everything ok , send token to client
 
-  const token = signToken(user._id);
-
-  return resp.status(200).json({
-    status: 'success',
-    token,
-  });
+  createSendToken(user, 200, resp);
 });
 
 exports.protect = catchAsync(async (req, resp, next) => {
@@ -197,10 +196,21 @@ exports.resetPassword = catchAsync(async (req, resp, next) => {
 
   // 4) Log the user in, send JWT
 
-  const token = signToken(user._id);
+  createSendToken(user, 200, resp);
+});
 
-  return resp.status(200).json({
-    status: 'success',
-    token,
-  });
+exports.updatePassword = catchAsync(async (req, resp, next) => {
+  const { passwordCurrent, password, passwordConfirm } = req.body;
+
+  const user = await User.findById(req.user.id).select('+password');
+
+  if (!(await User.correctPassword(passwordCurrent, user.password)))
+    return next(new AppError('Your current password is wrong', '401'));
+
+  user.password = password;
+  user.passwordConfirm = passwordConfirm;
+
+  await user.save();
+
+  createSendToken(user, 200, resp);
 });
