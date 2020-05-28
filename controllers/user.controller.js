@@ -33,6 +33,15 @@ exports.getAllUsers = catchAsync(async (req, resp) => {
   });
 });
 
+exports.deleteMe = catchAsync(async (req, resp, next) => {
+  await User.findByIdAndUpdate(req.user.id, { active: false });
+
+  resp.status(204).json({
+    status: 'success',
+    data: null,
+  });
+});
+
 exports.updateMe = catchAsync(async (req, resp, next) => {
   // 1) Create an error if the user tries to update the password
 
@@ -62,30 +71,3 @@ exports.updateMe = catchAsync(async (req, resp, next) => {
     },
   });
 });
-
-exports.getUser = (req, resp) => {
-  resp.status(400).json({
-    status: 'error',
-    message: 'This route is not yet defined',
-  });
-};
-
-exports.createUser = (req, resp) => {
-  resp.status(400).json({
-    status: 'error',
-    message: 'This route is not yet defined',
-  });
-};
-
-exports.updateUser = (req, resp) => {
-  resp.status(400).json({
-    status: 'error',
-    message: 'This route is not yet defined',
-  });
-};
-exports.deleteUser = (req, resp) => {
-  resp.status(400).json({
-    status: 'error',
-    message: 'This route is not yet defined',
-  });
-};
