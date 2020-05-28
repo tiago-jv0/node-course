@@ -84,21 +84,33 @@ exports.protect = catchAsync(async (req, resp, next) => {
 
   // 3) Check if the user still exists
 
-  const freshUser = await User.findById(decoded.id);
+  const currentUser = await User.findById(decoded.id);
 
-  if (!freshUser)
+  if (!currentUser)
     return next(
       new AppError('The token belonging to the token no longer exist.', '401')
     );
 
   // 4) Check if user changed password after the token was issued;
 
-  if (freshUser.changedPasswordAfter(decoded.iat))
+  if (currentUser.changedPasswordAfter(decoded.iat))
     return next(
       new AppError('User recently changed password! Please log in again', '401')
     );
 
   //Grant access to protected route
-  req.user = freshUser;
+  req.user = currentUser;
   next();
 });
+
+exports.restrictTo = (...roles) => {
+  return (req, resp, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError('You do not have permission to perform this action', '403')
+      );
+    }
+
+    next();
+  };
+};
