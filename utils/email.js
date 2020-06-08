@@ -4,11 +4,11 @@ const config = require('config');
 const sendEmail = async (options) => {
   // 1 ) Create a transporter
   const transporter = nodemailer.createTransport({
-    host: config.get('EMAIL_HOST'),
-    port: config.get('EMAIL_PORT'),
+    host: config.get('EMAIL.HOST'),
+    port: config.get('EMAIL.PORT'),
     auth: {
-      user: config.get('EMAIL_USERNAME'),
-      pass: config.get('EMAIL_PASSWORD'),
+      user: config.get('EMAIL.USERNAME'),
+      pass: config.get('EMAIL.PASSWORD'),
     },
   });
 

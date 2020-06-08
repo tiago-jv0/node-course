@@ -35,12 +35,17 @@ const sendErrorDev = (err, resp) => {
 };
 
 const sendErrorProduction = (err, resp) => {
+  // Operational , trusted error : send message to client
   if (err.isOperational) {
     return resp.status(err.statusCode).json({
       status: err.status,
       message: err.message,
     });
   }
+  //Programming or unknown error: don't leak errors details
+  //Log error
+  console.log(`Error : ${err}`);
+
   return resp.status(500).json({
     status: 'error',
     message: 'Something went very wrong',
