@@ -8,6 +8,7 @@ const {
   getMe,
   getAllUsers,
   uploadUserPhoto,
+  resizeUserPhoto,
 } = require('../controllers/user.controller');
 
 const {
@@ -32,7 +33,7 @@ router.use(protect);
 
 router.patch('/updateMyPassword', updatePassword);
 router.get('/me', getMe, getUser);
-router.patch('/updateMe', uploadUserPhoto, updateMe);
+router.patch('/updateMe', uploadUserPhoto, resizeUserPhoto, updateMe);
 router.delete('/deleteMe', deleteMe);
 
 router.use(restrictTo('admin'));
