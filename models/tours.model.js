@@ -41,6 +41,7 @@ const tourSchema = new mongoose.Schema(
       default: 4.5,
       max: [5, 'Rating must be below 5.0'],
       min: [1, 'Rating must be above 1.0'],
+      set: (val) => Math.round(val * 10) / 10,
     },
 
     ratingsQuantity: {
@@ -124,14 +125,15 @@ const tourSchema = new mongoose.Schema(
     guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
   },
   {
-    toJSON: {
-      virtuals: true,
-    },
-    toObject: {
-      virtuals: true,
-    },
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
 );
+
+// tourSchema.index({ price: 1 });
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+tourSchema.index({ slug: 1 });
+tourSchema.index({ startLocation: '2dsphere' });
 
 //VIRTUAL PROPERTY
 tourSchema.virtual('durationWeeks').get(function () {
@@ -143,6 +145,7 @@ tourSchema.virtual('reviews', {
   ref: 'Review',
   foreignField: 'tour',
   localField: '_id',
+  justOne: false,
 });
 
 // DOCUMENT MIDDLEWARE: runs before .save() and .create()
@@ -182,6 +185,7 @@ tourSchema.pre(/^find/, function (next) {
     secretTour: { $ne: true },
   });
 
+  this.start = Date.now();
   next();
 });
 
@@ -195,13 +199,13 @@ tourSchema.pre(/^find/, function (next) {
 
 //AGREGGATION MIDDLEWARE
 
-tourSchema.pre('aggregate', function (next) {
-  this.pipeline().unshift({
-    $match: { secretTour: { $ne: true } },
-  });
+// tourSchema.pre('aggregate', function (next) {
+//   this.pipeline().unshift({
+//     $match: { secretTour: { $ne: true } },
+//   });
 
-  next();
-});
+//   next();
+// });
 
 const Tour = mongoose.model('Tour', tourSchema);
 

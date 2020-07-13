@@ -1,9 +1,36 @@
+const multer = require('multer');
 const User = require('../models/user.model');
-const ApiFeatures = require('../utils/ApiFeatures');
 const AppError = require('../utils/AppError');
+
+const factory = require('./handlerFactory');
 
 const catchAsync = require('../utils/catchAsync');
 
+const multerStorage = multer.diskStorage({
+  destination: (req, file, callback) => {
+    callback(null, '/public/img/users');
+  },
+  filename: (req, file, callback) => {
+    const [, extension] = file.mimetype.split('/');
+
+    callback(null, `user-${req.user.id}-${Date.now()}.${extension}`);
+  },
+});
+
+const multerFilter = (req, file, callback) => {
+  if (file.mimetype.startsWith('image')) {
+    callback(null, true);
+  } else {
+    callback(
+      new AppError('Not an image! Please upload only images', '400'),
+      false
+    );
+  }
+};
+
+const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
+
+exports.uploadUserPhoto = upload.single('photo');
 const filterObj = (obj, ...allowedFilters) => {
   const newObj = {};
 
@@ -16,22 +43,11 @@ const filterObj = (obj, ...allowedFilters) => {
   return newObj;
 };
 
-exports.getAllUsers = catchAsync(async (req, resp) => {
-  const features = new ApiFeatures(User.find(), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .pagination();
+exports.getMe = (req, resp, next) => {
+  req.params.id = req.user.id;
 
-  const users = await features.query;
-
-  resp.status(200).json({
-    status: 'success',
-    data: {
-      users,
-    },
-  });
-});
+  next();
+};
 
 exports.deleteMe = catchAsync(async (req, resp, next) => {
   await User.findByIdAndUpdate(req.user.id, { active: false });
@@ -56,6 +72,7 @@ exports.updateMe = catchAsync(async (req, resp, next) => {
   // 2) Filtered out unwanted fields names that are not allowed to be updated
 
   const filteredBody = filterObj(req.body, 'name', 'email');
+  if (req.file) filteredBody.photo = req.file.filename;
 
   // 3) Update user document
 
@@ -71,3 +88,12 @@ exports.updateMe = catchAsync(async (req, resp, next) => {
     },
   });
 });
+
+exports.getAllUsers = factory.getAll(User);
+
+exports.getUser = factory.getOne(User);
+
+exports.deleteUser = factory.deleteOne(User);
+
+//Do NOT update passwords with this!
+exports.updateUser = factory.updateOne(User);

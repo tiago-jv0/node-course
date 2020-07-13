@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const morgan = require('morgan');
 const helmet = require('helmet');
 const config = require('config');
@@ -11,15 +12,20 @@ const globalErrorHandler = require('./controllers/error.controller');
 
 const AppError = require('./utils/AppError');
 
+const viewRouter = require('./routes/view.routes');
 const tourRouter = require('./routes/tour.routes');
 const userRouter = require('./routes/user.routes');
 const reviewRouter = require('./routes/reviews.routes');
 
 const app = express();
 
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+
 const enviroment = process.env.NODE_ENV || config.get('NODE_ENV');
 
 // 1 ) GLOBAL MIDDLEWARES
+app.use(express.static(path.join(__dirname, 'public')));
 
 //SET SECURITY HTTP HEADERS
 app.use(helmet());
@@ -54,17 +60,26 @@ app.use(xss());
 //PREVENT PARAMETER POLLUTION
 app.use(
   hpp({
-    whitelist: ['duration', 'ratingsQuantity', 'ratingsAverage' 'maxGroupSize' , 'difficulty' , 'price'],
+    whitelist: [
+      'duration',
+      'ratingsQuantity',
+      'ratingsAverage',
+      'maxGroupSize',
+      'difficulty',
+      'price',
+    ],
   })
 );
 
 //SERVING STATIC FILES
-app.use(express.static(`${__dirname}/public/`));
+// app.use(express.static(`${__dirname}/public/`));
 
 //ROUTES
+
+app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
-app.use('/api/v1/reviews' , reviewRouter)
+app.use('/api/v1/reviews', reviewRouter);
 
 app.all('*', (req, resp, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server !!!`, 400));

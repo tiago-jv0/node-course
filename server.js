@@ -3,7 +3,7 @@ const config = require('config');
 
 process.on('uncaughtException', (error) => {
   console.log('UNCAUGHT REJECTION! SHUTTING DOWN...');
-  console.log(error.name, error.message);
+  console.log(error.name, error.message, error);
   process.exit(1);
 });
 

@@ -44,8 +44,6 @@ const sendErrorProduction = (err, resp) => {
   }
   //Programming or unknown error: don't leak errors details
   //Log error
-  console.log(`Error : ${err}`);
-
   return resp.status(500).json({
     status: 'error',
     message: 'Something went very wrong',

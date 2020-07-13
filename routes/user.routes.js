@@ -1,5 +1,14 @@
 const express = require('express');
-const { updateMe, deleteMe } = require('../controllers/user.controller');
+const {
+  updateMe,
+  deleteMe,
+  deleteUser,
+  updateUser,
+  getUser,
+  getMe,
+  getAllUsers,
+  uploadUserPhoto,
+} = require('../controllers/user.controller');
 
 const {
   signUp,
@@ -8,19 +17,28 @@ const {
   resetPassword,
   protect,
   updatePassword,
+  restrictTo,
 } = require('../controllers/auth.controller');
 
 const router = express.Router();
 
 router.post('/signup', signUp);
 router.post('/login', login);
-
 router.post('/forgotPassword', forgotPassword);
 router.patch('resetPassword/:token', resetPassword);
 
-router.patch('/updateMyPassword', protect, updatePassword);
+//Protect all routes after this middleware
+router.use(protect);
 
-router.patch('/updateMe', protect, updateMe);
-router.delete('/deleteMe', protect, deleteMe);
+router.patch('/updateMyPassword', updatePassword);
+router.get('/me', getMe, getUser);
+router.patch('/updateMe', uploadUserPhoto, updateMe);
+router.delete('/deleteMe', deleteMe);
+
+router.use(restrictTo('admin'));
+
+router.route('/').get(getAllUsers);
+
+router.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
 
 module.exports = router;
